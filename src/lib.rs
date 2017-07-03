@@ -338,9 +338,11 @@ mod tests {
             let a2 = string_automata();
             let a3 = M::new(&[ (0, '(', 1), ], &[1]);
             let a4 = M::new(&[ (0, ')', 1), ], &[1]);
+            let a5 = M::new(&[ (0, ' ', 1), ], &[1]);
+            let a6 = M::new(&[ (0, '>', 1), ], &[1]);
 
-            let mut patterns = [a0, a1, a2, a3, a4];
-            let types = ["ID", "NUMBER", "STRING", "PAROPEN", "PARCLOSE"];
+            let mut patterns = [a0, a1, a2, a3, a4, a5, a6];
+            let types = ["ID", "NUMBER", "STRING", "PAROPEN", "PARCLOSE", "SPACE", "OPREL"];
 
 
 
@@ -370,7 +372,7 @@ mod tests {
                 //p.print_state();
             //}
 
-            let mut category = "NO MATCH";
+            let mut category = "NO_MATCH";
             if was_accepted {
                 let mut end = false;
                 loop {
@@ -403,5 +405,20 @@ mod tests {
         assert_eq!(lex("hellow x y"), ("ID", "hellow".to_string()));
         assert_eq!(lex("(hellow"), ("PAROPEN", "(".to_string()));
         assert_eq!(lex("123456789 x"), ("NUMBER", "123456789".to_string()));
+
+
+        let source = "(define (myfn x y) (if (> x y) x y))";
+        let mut last_lexed = 0;
+        loop {
+            if last_lexed >= source.len() {
+                break;
+            }
+            let (category, lexeme) = lex(&source[last_lexed..]);
+            println!("{}, {}", category, lexeme);
+            last_lexed += lexeme.len();
+            if category == "NO_MATCH" {
+                panic!("ERROR");
+            }
+        }
     }
 }
